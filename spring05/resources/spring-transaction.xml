@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 配置事务通知 -->
+	<!-- transaction-manager就是IOC容器中配置的事务管理器，建议名称保持一致 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<!-- 配置事务的传播行为 -->
+		<tx:attributes>
+			<!-- 参数，
+			name：需要配置的方法名；
+			propagation：传播行为； 
+				REQUIRED：需要事务，通常用在增删改
+				SUPPORTS：不需要事务，通常用在查询         
+			read-only：是否只读
+				false：需要事务
+				true：不需要事务
+			-->
+			
+			<!-- 增删改需要事务 -->
+			<tx:method name="transAccount" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="add*" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="upd*" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="del*" propagation="REQUIRED" read-only="false"/>
+			
+			<!-- 查询方法不要事务 -->
+			<tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+			<tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- AOP配置 -->
+	<aop:config>
+		<!-- 配置切入点 -->
+		<aop:pointcut expression="execution(* com.turing.sm.service..*.*(..))" id="pc"/>
+		<!-- 配置切面 -->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="pc"/>
+	</aop:config>
+
+</beans>
